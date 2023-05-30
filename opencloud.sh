@@ -705,8 +705,7 @@ API地址：${DIGITALOCEAN_TOKEN}
 
 IP地址为：$ipv4_address；$ipv6_address
 用户名：root
-密码：Opencloud@Leige
-密码为固定密码，请立即修改！"
+密码：Opencloud@Leige 密码为固定密码，请立即修改！（如果你修改过密码请使用新密码）"
 	
 	read -s -n 1 -p "
 按下回车键将返回 ${submodule} 菜单，输入'q'退出"
@@ -915,7 +914,8 @@ Droplet操作：—————————————————————�
  ${Green_font_prefix}9.${Font_color_suffix} 重启机器(硬)
  ${Green_font_prefix}10.${Font_color_suffix} 重置ROOT密码（新密码会发送账号邮箱内）
 ————————————————————————————————————————————————————————————————
- ${Green_font_prefix}0.${Font_color_suffix} 返回主菜单
+ ${Green_font_prefix}00.${Font_color_suffix} 修改开机密码
+ ${Green_font_prefix}99.${Font_color_suffix} 返回主菜单
 ————————————————————————————————————————————————————————————————" &&
 
 read -p " 请输入数字 :" num
@@ -956,6 +956,12 @@ read -p " 请输入数字 :" num
 	submodule="Digitalocean"
 	do_power
 	;;
+	00)
+	set_passwd
+	;;
+	99)
+	menu
+	;;
   *)
     clear
     echo -e "${Error}:请输入正确数字 [0-99]（2秒后返回）"
@@ -967,7 +973,7 @@ read -p " 请输入数字 :" num
 
 #初始化
 initialization(){
-    mkdir -p ${file_path}/digitalocean
+    mkdir -p ${file_path}/Digitalocean
 
 	if [ ! -f "${file_path}/userdata" ]; then
 		echo "#!/bin/bash
@@ -980,6 +986,54 @@ echo root:Opencloud@Leige |sudo chpasswd root;
 sudo sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config;
 sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config;
 sudo service sshd restart;" > "${file_path}/userdata"
+	fi
+}
+
+#修改开机默认密码
+set_passwd(){
+while true; do
+clear
+	echo "`date` 正在进行 修改开机默认密码 操作"
+  read -s -p "请输入新密码: " password
+  echo
+
+  if [[ ${#password} -lt 8 || ${#password} -gt 16 || ! "$password" =~ [A-Z] || ! "$password" =~ [a-z] || ! "$password" =~ [0-9] || ! "$password" =~ [()#@$!%.,/] ]]; then
+    echo "密码必须是8到16个字符，包括大小写字母、数字和特殊符号 ( ) # @ $ ! % . , /"
+  else
+    break
+  fi
+done
+
+while true; do
+  read -s -p "请再次输入新密码: " password_confirmation
+  echo
+
+  if [[ "$password" != "$password_confirmation" ]]; then
+    echo "两次输入的密码不一致，请重新输入！"
+  else
+    break
+  fi
+done
+
+	rm -rf ${file_path}/userdata
+	echo "#!/bin/bash
+                
+sudo service iptables stop 2> /dev/null ; chkconfig iptables off 2> /dev/null ;
+sudo sed -i.bak '/^SELINUX=/cSELINUX=disabled' /etc/sysconfig/selinux;
+sudo sed -i.bak '/^SELINUX=/cSELINUX=disabled' /etc/selinux/config;
+sudo setenforce 0;
+echo root:${password} |sudo chpasswd root;
+sudo sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config;
+sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config;
+sudo service sshd restart;" > "${file_path}/userdata"
+read -s -n 1 -p "
+开机默认密码已经修改为 ${password} 该密码是全局通用的。
+按下回车键将返回 ${submodule} 菜单，输入'q'退出"
+		
+	if [[ $REPLY == "" ]]; then
+		${submodule}_memu
+	else
+		exit 1
 	fi
 }
 
@@ -1008,8 +1062,8 @@ read -p " 请输入数字 :" num
 initialization
 if [[ $1 == "do" ]]; then
     Digitalocean_memu
-#elif [[ $1 == "aws" ]]; then
-#    menu
+elif [[ $1 == "linode" ]]; then
+    menu
 else
     menu
 fi
