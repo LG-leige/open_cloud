@@ -746,9 +746,6 @@ read -s -n 1 -p "
 	else
 		exit 1
 	fi
-		else
-		Digitalocean_memu
-	fi
 }
 
 #查询API
