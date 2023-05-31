@@ -1048,16 +1048,12 @@ menu() {
   echo -e "云服务开机脚本${Red_font_prefix} 开源免费 无加密代码${Font_color_suffix} ${Green_font_prefix}from Telegram：@openccloud${Font_color_suffix}
 项目地址：${Red_font_prefix}https://github.com/LG-leige/open_cloud${Font_color_suffix}
  ${Green_font_prefix}1.${Font_color_suffix} Digitalocean 开机脚本
- ${Green_font_prefix}1.${Font_color_suffix} Linode 开机脚本
 ————————————————————————————————————————————————————————————————" &&
 
 read -p " 请输入数字 :" num
   case "$num" in
     1)
     Digitalocean_memu
-    ;;
-	1)
-    Linode_memu
     ;;
 	*)
     clear
@@ -1072,7 +1068,7 @@ initialization
 if [[ $1 == "do" ]]; then
     Digitalocean_memu
 elif [[ $1 == "linode" ]]; then
-    Linode_memu
+    menu
 else
     menu
 fi
