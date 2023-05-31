@@ -10,7 +10,8 @@ Error="${Red_font_prefix}[错误]${Font_color_suffix}"
 Tip="${Green_font_prefix}[注意]${Font_color_suffix}"
 file_path="/etc/opencloud"
 do_region='{"opencloud":[{"name":"New York 1（美国纽约 1）","id":"nyc1"},{"name":"San Francisco 1（美国旧金山 1）","id":"sfo1"},{"name":"Singapore 1（新加坡 1）","id":"sgp1"},{"name":"London 1（英国伦敦 1）","id":"lon1"},{"name":"New York 3（美国纽约 3）","id":"fra1"},{"name":"Amsterdam 3（荷兰 3）","id":"ams3"},{"name":"Frankfurt 1（德国 1）","id":"fra1"},{"name":"Toronto 1（加拿大 1）","id":"tor1"},{"name":"Bangalore 1（印度 1）","id":"blr1"},{"name":"San Francisco 3（美国旧金山 3）","id":"sfo3"},{"name":"Sydney Australia 1（澳大利亚1 ）","id":"syd1"}]}'
-do_image='{"opencloud":[{"name":"1Vcpu(Regular) 512GB 0.5TB $4.00【荷兰 美国纽约 美国旧金山3 澳大利亚 可用】","id":"s-1vcpu-512mb-10gb"},{"name":"1Vcpu(Regular) 1GB 1TB $6.00","id":"s-1vcpu-1gb"},{"name":"1Vcpu(Regular) 2GB 2TB $12.00","id":"s-1vcpu-2gb"},{"name":"2Vcpu(Regular) 2GB 3TB $18.00","id":"s-2vcpu-2gb"},{"name":"2Vcpu(Regular) 4GB 4TB $24.00","id":"s-2vcpu-4gb"},{"name":"1Vcpu(amd) 1GB 1TB $7.00","id":"s-1vcpu-1gb-amd"},{"name":"1Vcpu(amd) 2GB 2TB $14.00","id":"s-1vcpu-2gb-amd"},{"name":"2Vcpu(amd) 2GB 3TB $21.00","id":"s-2vcpu-2gb-amd"},{"name":"2Vcpu(amd) 2GB 4TB $28.00","id":"s-2vcpu-4gb-amd"},{"name":"1Vcpu(intel) 1GB 1TB $7.00","id":"s-1vcpu-1gb-intel"},{"name":"1Vcpu(intel) 2GB 2TB $14.00","id":"s-1vcpu-2gb-intel"},{"name":"2Vcpu 2GB 3TB $21.00","id":"s-2vcpu(intel)-2gb-intel"},{"name":"2Vcpu(intel) 4GB 4TB $28.00","id":"s-2vcpu-4gb-intel"}]}'
+do_size='{"opencloud":[{"name":"1Vcpu(Regular) 512GB 0.5TB $4.00【荷兰 美国纽约 美国旧金山3 澳大利亚 可用】","id":"s-1vcpu-512mb-10gb"},{"name":"1Vcpu(Regular) 1GB 1TB $6.00","id":"s-1vcpu-1gb"},{"name":"1Vcpu(Regular) 2GB 2TB $12.00","id":"s-1vcpu-2gb"},{"name":"2Vcpu(Regular) 2GB 3TB $18.00","id":"s-2vcpu-2gb"},{"name":"2Vcpu(Regular) 4GB 4TB $24.00","id":"s-2vcpu-4gb"},{"name":"1Vcpu(amd) 1GB 1TB $7.00","id":"s-1vcpu-1gb-amd"},{"name":"1Vcpu(amd) 2GB 2TB $14.00","id":"s-1vcpu-2gb-amd"},{"name":"2Vcpu(amd) 2GB 3TB $21.00","id":"s-2vcpu-2gb-amd"},{"name":"2Vcpu(amd) 2GB 4TB $28.00","id":"s-2vcpu-4gb-amd"},{"name":"1Vcpu(intel) 1GB 1TB $7.00","id":"s-1vcpu-1gb-intel"},{"name":"1Vcpu(intel) 2GB 2TB $14.00","id":"s-1vcpu-2gb-intel"},{"name":"2Vcpu 2GB 3TB $21.00","id":"s-2vcpu(intel)-2gb-intel"},{"name":"2Vcpu(intel) 4GB 4TB $28.00","id":"s-2vcpu-4gb-intel"}]}'
+do_image='{"opencloud":[{"name":"centos-7-x64","id":"centos-7-x64"},{"name":"centos-stream-8-x64","id":"centos-stream-8-x64"},{"name":"centos-stream-9-x64","id":"centos-stream-9-x64"},{"name":"debian-10-x64","id":"debian-10-x64"},{"name":"debian-11-x64","id":"debian-11-x64"},{"name":"ubuntu-18-04-x64","id":"ubuntu-18-04-x64"},{"name":"ubuntu-20-04-x64","id":"ubuntu-20-04-x64"},{"name":"ubuntu-22-04-x64","id":"ubuntu-22-04-x64"}]}'
 
 #do删除vm
 do_vm_del(){
@@ -435,10 +436,10 @@ done
 	
 	clear
 	echo -e "`date` 正在进行 ${submodule} 查询VM信息\n"
-	json=`curl -s -4 -X GET \
+	json=$(curl -s -4 -X GET \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $DIGITALOCEAN_TOKEN" \
-  "https://api.digitalocean.com/v2/droplets"`
+  "https://api.digitalocean.com/v2/droplets")
   
   o=$(echo "$json" | jq ".meta.total")
 	
@@ -641,7 +642,7 @@ API地址：${DIGITALOCEAN_TOKEN}
 	clear
 	echo -e "`date` 正在进行 ${submodule} 创建VM操作\n"
 	echo -n -"\n正在创建VM，请稍后！"
-	json=`curl -s -X POST \
+	json=$(curl -s -X POST \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $DIGITALOCEAN_TOKEN" \
     -d '{
@@ -655,7 +656,7 @@ API地址：${DIGITALOCEAN_TOKEN}
     }' \
     https://api.digitalocean.com/v2/droplets`
     
-    vm_id=`echo $json | jq -r '.droplet.id'`
+    vm_id=`echo $json | jq -r '.droplet.id')
 
     if [[ $vm_id == null ]];
     then
@@ -696,6 +697,8 @@ API地址：${DIGITALOCEAN_TOKEN}
     sleep "$retry_interval"
   done
 
+passwd=$(grep -oP '(?<=echo root:)[^|]*' "$file_path")
+
 	echo -e "\n使用账号：${api_name}
 机器备注：${vm_name}
 服务器位置：${region}
@@ -704,7 +707,8 @@ API地址：${DIGITALOCEAN_TOKEN}
 
 IP地址为：$ipv4_address；$ipv6_address
 用户名：root
-密码：Opencloud@Leige 密码为固定密码，请立即修改！（如果你修改过密码请使用新密码）"
+密码：${passwd}
+如果是固定密码，请立即修改密码！"
 	
 	read -s -n 1 -p "
 按下回车键将返回 ${submodule} 菜单，输入'q'退出"
@@ -719,7 +723,7 @@ IP地址为：$ipv4_address；$ipv6_address
 #do检测API
 do_detection_api(){
 clear
-	echo -e "`date` 正在进行 ${submodule} API测活操作\nAPI名称 | 电子邮箱 | 账号配额| 账号余额 || 账号状态 |\n"
+	echo -e "`date` 正在进行 ${submodule} API测活操作\nAPI名称 | 电子邮箱 | 账号配额| 账号余额 | 账号状态 |\n"
 api_data=$(cat "$file_path/$submodule/api")
 
 while IFS='|' read -r api_name url; do
@@ -896,7 +900,7 @@ fi
 #do菜单
 Digitalocean_memu() {
   clear
-   echo -e "Digitalocean 开机脚本${Red_font_prefix} 开源免费 无加密代码${Font_color_suffix} ${Green_font_prefix}from Telegram：@LeiGe_233 @openccloud${Font_color_suffix}
+   echo -e "Digitalocean 开机脚本${Red_font_prefix} 开源免费 无加密代码${Font_color_suffix} ${Green_font_prefix}from Telegram：@openccloud${Font_color_suffix}
 项目地址：${Red_font_prefix}https://github.com/LG-leige/open_cloud${Font_color_suffix}
 
 API功能：————————————————————————————————————————————————————————
@@ -972,7 +976,9 @@ read -p " 请输入数字 :" num
 
 #初始化
 initialization(){
+	mkdir -p ${file_path}
     mkdir -p ${file_path}/Digitalocean
+	mkdir -p ${file_path}/Linode
 
 	if [ ! -f "${file_path}/userdata" ]; then
 		echo "#!/bin/bash
@@ -1039,15 +1045,19 @@ read -s -n 1 -p "
 #主菜单
 menu() {
   clear
-  echo -e "云服务开机脚本${Red_font_prefix} 开源免费 无加密代码${Font_color_suffix} ${Green_font_prefix}from Telegram：@LeiGe_233 @openccloud${Font_color_suffix}
+  echo -e "云服务开机脚本${Red_font_prefix} 开源免费 无加密代码${Font_color_suffix} ${Green_font_prefix}from Telegram：@openccloud${Font_color_suffix}
 项目地址：${Red_font_prefix}https://github.com/LG-leige/open_cloud${Font_color_suffix}
  ${Green_font_prefix}1.${Font_color_suffix} Digitalocean 开机脚本
+ ${Green_font_prefix}1.${Font_color_suffix} Linode 开机脚本
 ————————————————————————————————————————————————————————————————" &&
 
 read -p " 请输入数字 :" num
   case "$num" in
     1)
     Digitalocean_memu
+    ;;
+	1)
+    Linode_memu
     ;;
 	*)
     clear
@@ -1062,7 +1072,7 @@ initialization
 if [[ $1 == "do" ]]; then
     Digitalocean_memu
 elif [[ $1 == "linode" ]]; then
-    menu
+    Linode_memu
 else
     menu
 fi
