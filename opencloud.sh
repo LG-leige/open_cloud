@@ -1866,11 +1866,8 @@ read -p " 请输入数字 :" num
 initialization
 if [[ $1 == "do" ]]; then
     Digitalocean_memu
-<<<<<<< HEAD
-=======
 elif [[ $1 == "linode" ]]; then
-    menu
->>>>>>> a1401e54afd73066b1bff6aba7cdc388bb06f9fb
+    Digitalocean_memu
 else
     menu
 fi
